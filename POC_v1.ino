@@ -59,13 +59,14 @@ void loop() {
   //idleScreen();
   //playMusic();
   //buttonIsPressedLongEnough();
+  //delay(999999999999999);
 
   //ROUTINE
-  if (buttonIsPressedLongEnough()) {
-    displayCompliment();
-    //playMusic();
-    idleScreen();
-  }
+   if (buttonIsPressedLongEnough()) {
+     displayCompliment();
+     playMusic();
+     idleScreen();
+    }
 }
 
 bool buttonIsPressedLongEnough() {
@@ -93,8 +94,8 @@ bool buttonIsPressedLongEnough() {
 void displayCompliment() {
   //List of compliments
   String compliments[] = {
-    "Tu fais du bien comme un kebab a 5h du mat",
-    "Tu es beau comme un jour ferie un lundi",
+    //"Tu fais du bien comme un kebab a 5h du mat",
+    //"Tu es beau comme un jour ferie un lundi",
     "Sans toi, je suis comme Jul sans vocodeur : rien",
   };
 
@@ -110,40 +111,106 @@ void displayCompliment() {
   Serial.print(" - ");
   Serial.println(compliments[selectedCompliment]);
 
-  Serial.print("Index of the first space: ");
-  Serial.println(compliments[selectedCompliment].indexOf(' '));
-
-  String mots[100];
+  String words[100];
   int previousIndexOf = 0;
   int k = 0;
-  /*Serial.print( k );
-  Serial.print(" ");
-  mots[k] = compliments[selectedCompliment].substring(previousIndexOf, compliments[selectedCompliment].indexOf(' ', previousIndexOf));
-  previousIndexOf = compliments[selectedCompliment].indexOf(' ') + 1;
-  Serial.println(mots[k]);
-  k = 1;
-  Serial.print(k);
-  Serial.print(" ");
-  mots[k] = compliments[selectedCompliment].substring(previousIndexOf, compliments[selectedCompliment].indexOf(' ', previousIndexOf));
-  previousIndexOf = compliments[selectedCompliment].indexOf(' ') + 1;
-  Serial.println(mots[k]);*/
 
-while(previousIndexOf != -1){
-    
+  //Hashing the compliment into words
+  //BUG : condition de fin pour avoir le dernier mot
+  while (compliments[selectedCompliment].indexOf(' ', previousIndexOf) != -1) {
+    /*Serial.print(k);
+      Serial.print(" previousindexof: ");
+      Serial.print(previousIndexOf);
+      Serial.print(" compliments[selectedCompliment].indexOf(' ', previousIndexOf): ");
+      Serial.print(compliments[selectedCompliment].indexOf(' ', previousIndexOf));
+      Serial.print(" - ");*/
+
+    words[k] = compliments[selectedCompliment].substring(previousIndexOf, compliments[selectedCompliment].indexOf(' ', previousIndexOf));
+    previousIndexOf = compliments[selectedCompliment].indexOf(' ', previousIndexOf) + 1;
+    //Serial.println(words[k]);
+    k++;
+  }
+
+  //DEBUG Write the words array
+  /*k = 0;
+    Serial.println("Word array:");
+    while (k < 100) {
     Serial.print(k);
     Serial.print(" ");
-    mots[k] = compliments[selectedCompliment].substring(previousIndexOf, compliments[selectedCompliment].indexOf(' ', previousIndexOf));
-    if(compliments[selectedCompliment].indexOf(' ', previousIndexOf) != -1)
-      previousIndexOf = compliments[selectedCompliment].indexOf(' ', previousIndexOf) + 1;
-    Serial.println(mots[k]);
+    Serial.println(words[k]);
+    k++;
+    }*/
+
+  //Setup the Lines array
+  int Lines[10][10];
+  int m = 0;
+  int n = 0;
+  while (m < 10) {
+    while (n < 10) {
+      Lines[m][n] = 0;
+      n++;
+    }
+    m++;
+    n = 0;
+  }
+
+  //DEBUG Write the Lines array
+  /*m = 0;
+    n = 0;
+    while (m < 10) {
+    Serial.print("Line ");
+    Serial.print(m);
+    Serial.print(" - ");
+    while (n < 10) {
+      Serial.print(Lines[m][n]);
+      Serial.print(" ");
+      n++;
+    }
+    Serial.println();
+    m++;
+    n = 0;
+    }*/
+
+
+  //Fills the Lines array with the words number
+  m = 0;
+  n = 0;
+  k = 0;
+  int lineLength = 0;
+  Serial.println(words[50].length());
+  while (words[k].length() != 0) {
+
+    if (words[k].length() + lineLength + 1  <= 17) {
+      Lines[m][n] = k;
+      n++;
+      lineLength = lineLength + words[k].length() + 1;
+    }
+    else {
+      m++;
+      n = 0;
+      lineLength = 0;
+    }
+
     k++;
   }
 
 
-
-  String mot = compliments[selectedCompliment].substring(0, compliments[selectedCompliment].indexOf(' '));
-  Serial.print("First word: ");
-  Serial.println(mot);
+  //DEBUG Write back the Lines array
+  m = 0;
+  n = 0;
+  while (m < 10) {
+    Serial.print("Line ");
+    Serial.print(m);
+    Serial.print(" - ");
+    while (n < 10) {
+      Serial.print(Lines[m][n]);
+      Serial.print(" ");
+      n++;
+    }
+    Serial.println();
+    m++;
+    n = 0;
+  }
 
   //Display of the compliment
   lcd.clear();
@@ -153,17 +220,15 @@ while(previousIndexOf != -1){
 
 
 
-  //Dummy compliment
-  /*lcd.clear();
+  //Dummy static compliment
+  lcd.clear();
     lcd.print("Tu fait plaiz com");
     lcd.setCursor(0, 0);
     //lcd.print(compliments[selectedCompliment]);
     lcd.setCursor(0, 1);
     lcd.print("1kebab a 5du mat");
-    delay(500);*/
+    delay(500);
 }
-
-
 
 void idleScreen() { //set the default screen when the system is waiting for a user to press the button.
   lcd.clear();
