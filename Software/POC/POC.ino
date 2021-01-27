@@ -1,9 +1,11 @@
 #include <Array.h>
 
 /*Compliment generator
-   POC v1
+   POC
    by Nicolas Hippert
    nhippert@gmail.com
+   https://github.com/nhippert/ComplimentGenerator
+   Last update on Jan. 27 2021
 */
 
 #include <LiquidCrystal.h>
