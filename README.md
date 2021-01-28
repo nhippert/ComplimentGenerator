@@ -10,6 +10,7 @@ Anyway, have fun, don't hesitate to ask me questions and feel welcome to contact
 Project is actually ongoing... but to get you an idea, here is the first draft. But we have a clear roadmap to get this thing out and running in weeks!
 
 [![Alt text](https://img.youtube.com/vi/VZAMnIOjnCs/0.jpg)](https://youtu.be/VZAMnIOjnCs)
+Click on the picture to see the video ;)
 
 
 My twitter : @nhippert
