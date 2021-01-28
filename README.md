@@ -3,7 +3,7 @@ The open repository for a complete arduino based hardware compliment generator!
 
 You're going to work and feel a little bit sad, just press the button on your ever there for you Compliment Generator... and you'll recieve a dose of nice feelings, compliments just for you.
 
-Our state of the art ComplimentEngine will generate tailored made AI boosted compliments to boost your day... Just kidding, its a list with a random selection so far!
+Our state of the art ComplimentEngine will generate tailored made AI boosted compliments to get your day kicking... Just kidding, its a list with a random selection so far!
 
 Anyway, have fun, don't hesitate to ask me questions and feel welcome to contact me if you want to participate.
 
