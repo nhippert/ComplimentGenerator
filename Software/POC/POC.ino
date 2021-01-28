@@ -1,17 +1,14 @@
-#include <Array.h>
-
-/*Compliment generator
+/*ComplimentGenerator
    POC
    by Nicolas Hippert
    nhippert@gmail.com
    https://github.com/nhippert/ComplimentGenerator
-   Last update on Jan. 27 2021
 */
 
 #include <LiquidCrystal.h>
 #include "pitches.h"
 
-//Constants
+//Pins
 const int rs = 12;
 const int enable = 11;
 const int d4 = 5;
@@ -19,22 +16,21 @@ const int d5 = 4;
 const int d6 = 3;
 const int d7 = 2;
 const int buttonPin = 7;
+const int buzzer = 8;
+
+//Global constants
 const int tempo = 140; // change this to make the song slower or faster
-const int buzzer = 8; // change this to whichever pin you want to use
 
 //Variables
 int buttonPushCounter = 0;   // counter for the number of button presses
 int buttonState = 0;         // current state of the button
 int lastButtonState = 0;     // previous state of the button
 
-
 //SETUP
 LiquidCrystal lcd(rs, enable, d4, d5, d6, d7);
 void setup() {
-
   //LCD
-  // set up the LCD's number of columns and rows
-  lcd.begin(16, 2);
+  lcd.begin(16, 2);  // set up the LCD's number of columns and rows
   lcd.clear();
 
   //LOADING SCREEN
@@ -43,7 +39,6 @@ void setup() {
   lcd.print("Tu sais quoi...");
   delay(50);
 
-
   //BUTTON
   // initialize the pushbutton pin as an input:
   pinMode(buttonPin, INPUT);
@@ -51,27 +46,30 @@ void setup() {
   //SERIAL
   Serial.begin(9600);
   Serial.println("Compliment generator starting up...");
-
 }
 
 void loop() {
 
   //TESTS
-  //displayCompliment();
+  displayCompliment(randomCompliment());
+  //displayDummyCompliment();
   //idleScreen();
   //playMusic();
-  //buttonIsPressedLongEnough();
-  //delay(999999999999999);
+  //buttonIsPressedLongEnough(3);
+  //randomCompliment();
+  delay(999999999999);
+
 
   //ROUTINE
-   if (buttonIsPressedLongEnough()) {
-     displayCompliment();
-     playMusic();
-     idleScreen();
-    }
+  /*if (buttonIsPressedLongEnough(5)) {
+    displayCompliment(randomCompliment());
+    //playMusic();
+    idleScreen();
+    }*/
 }
 
-bool buttonIsPressedLongEnough() {
+bool buttonIsPressedLongEnough(int thatIsLongEnough) { //Listen for a long press of the main button.
+  //thatIsLongEnough is the time required to press the button in seconds.
   // read the pushbutton input pin
   buttonState = digitalRead(buttonPin);
 
@@ -93,47 +91,42 @@ bool buttonIsPressedLongEnough() {
   return false;
 }
 
-void displayCompliment() {
+String randomCompliment() { //Select a compliment (almost) randomly from a list
   //List of compliments
   String compliments[] = {
-    //"Tu fais du bien comme un kebab a 5h du mat",
-    //"Tu es beau comme un jour ferie un lundi",
+    "Tu fais du bien comme un kebab a 5h du mat",
+    "Tu es beau comme un jour ferie un lundi",
     "Sans toi, je suis comme Jul sans vocodeur : rien",
   };
 
   //Random compliment selector
   int nbCompliments = sizeof(compliments) / 6;
-  int selectedCompliment = random(0, nbCompliments);
+  int numberSelected = random(0, nbCompliments);
 
-  //Preparation of the compliment
-
-  //Monitor selected compliment
+  //Verbose
   Serial.print("Selected compliment: #");
-  Serial.print(selectedCompliment);
+  Serial.print(numberSelected);
   Serial.print(" - ");
-  Serial.println(compliments[selectedCompliment]);
+  Serial.println(compliments[numberSelected]);
 
+  return compliments[numberSelected];
+}
+
+void displayCompliment(String selectedCompliment) { //Write a random compliment
   String words[100];
   int previousIndexOf = 0;
   int k = 0;
 
   //Hashing the compliment into words
-  //BUG : condition de fin pour avoir le dernier mot
-  while (compliments[selectedCompliment].indexOf(' ', previousIndexOf) != -1) {
-    /*Serial.print(k);
-      Serial.print(" previousindexof: ");
-      Serial.print(previousIndexOf);
-      Serial.print(" compliments[selectedCompliment].indexOf(' ', previousIndexOf): ");
-      Serial.print(compliments[selectedCompliment].indexOf(' ', previousIndexOf));
-      Serial.print(" - ");*/
+  while (selectedCompliment.indexOf(' ', previousIndexOf) != -1) {
+    words[k] = selectedCompliment.substring(previousIndexOf, selectedCompliment.indexOf(' ', previousIndexOf));
+    previousIndexOf = selectedCompliment.indexOf(' ', previousIndexOf) + 1;
 
-    words[k] = compliments[selectedCompliment].substring(previousIndexOf, compliments[selectedCompliment].indexOf(' ', previousIndexOf));
-    previousIndexOf = compliments[selectedCompliment].indexOf(' ', previousIndexOf) + 1;
-    //Serial.println(words[k]);
     k++;
   }
+  words[k] = selectedCompliment.substring(previousIndexOf, selectedCompliment.indexOf(' ', previousIndexOf));
 
-  //DEBUG Write the words array
+  //Verbose: Write the words array
   /*k = 0;
     Serial.println("Word array:");
     while (k < 100) {
@@ -156,90 +149,121 @@ void displayCompliment() {
     n = 0;
   }
 
-  //DEBUG Write the Lines array
-  /*m = 0;
-    n = 0;
-    while (m < 10) {
-    Serial.print("Line ");
-    Serial.print(m);
-    Serial.print(" - ");
-    while (n < 10) {
-      Serial.print(Lines[m][n]);
-      Serial.print(" ");
-      n++;
-    }
-    Serial.println();
-    m++;
-    n = 0;
-    }*/
-
+  //Verbose: Write the Lines array
+  /* m = 0;
+     n = 0;
+     while (m < 10) {
+     Serial.print("Line ");
+     Serial.print(m);
+     Serial.print(" - ");
+     while (n < 10) {
+       Serial.print(Lines[m][n]);
+       Serial.print(" ");
+       n++;
+     }
+     Serial.println();
+     m++;
+     n = 0;
+     }*/
 
   //Fills the Lines array with the words number
   m = 0;
   n = 0;
   k = 0;
   int lineLength = 0;
-  Serial.println(words[50].length());
   while (words[k].length() != 0) {
-
     if (words[k].length() + lineLength + 1  <= 17) {
       Lines[m][n] = k;
       n++;
       lineLength = lineLength + words[k].length() + 1;
+      k++;
     }
     else {
       m++;
       n = 0;
       lineLength = 0;
     }
-
-    k++;
   }
 
 
-  //DEBUG Write back the Lines array
+  //Verbose: Write back the Lines array
+  /* m = 0;
+    n = 0;
+    while (m < 10) {
+     Serial.print("Line ");
+     Serial.print(m);
+     Serial.print(" - ");
+     while (n < 10) {
+       Serial.print(Lines[m][n]);
+       Serial.print(" ");
+       n++;
+     }
+     Serial.println();
+     m++;
+     n = 0;
+    }*/
+
+  //Display of the compliment
+  /*String preformatedLines[10];
+    for (int i = 0; i < 10; i++) {
+    preformatedLines[i] = "";
+    }*/
+
   m = 0;
   n = 0;
-  while (m < 10) {
+  boolean nextIsEmpty = false;
+
+  while (m < 10 && nextIsEmpty != true) {
     Serial.print("Line ");
     Serial.print(m);
     Serial.print(" - ");
-    while (n < 10) {
-      Serial.print(Lines[m][n]);
+    while (n < 10 && nextIsEmpty != true) {
+      //preformatedLines[m].concat(words[Lines[m][n]]);
+      Serial.print(words[Lines[m][n]]);
       Serial.print(" ");
+      if (Lines[m][n + 1] == 0) {
+        nextIsEmpty = true;
+      }
       n++;
     }
     Serial.println();
     m++;
     n = 0;
+    if (Lines[m][n] != 0) {
+      nextIsEmpty = false;
+    }
   }
 
-  //Display of the compliment
-  lcd.clear();
+  m = 0;
+  /*
+    lcd.clear();
+    while (m < 10 && preformatedLines[m].length() != 0) {
+      Serial.print(preformatedLines[m]);
+      lcd.print(preformatedLines[m]);
+      lcd.setCursor(0, 1);
+      lcd.print(preformatedLines[m + 1]);
+      delay(1000);
+      m++;
+    }*/
 
-
-  //Removal of the compliment from the list
-
-
-
-  //Dummy static compliment
-  lcd.clear();
-    lcd.print("Tu fait plaiz com");
-    lcd.setCursor(0, 0);
-    //lcd.print(compliments[selectedCompliment]);
-    lcd.setCursor(0, 1);
-    lcd.print("1kebab a 5du mat");
-    delay(500);
 }
 
-void idleScreen() { //set the default screen when the system is waiting for a user to press the button.
+void displayDummyCompliment() { //For POC purposes only, display an unique static compliment
+  //Dummy static compliment
+  lcd.clear();
+  lcd.print("T'fait plaiz com");
+  lcd.setCursor(0, 1);
+  lcd.print("1kebab a 5du mat");
+}
+
+void idleScreen() { //Display the default screen when the system is waiting for a user to press the button.
   lcd.clear();
   lcd.print("Eh toi !!!");
   lcd.setCursor(0, 1);
   lcd.print("Tu sais quoi...");
 }
 
-void playMusic() {
+void playMusic() { //Play a gratifying music to cheer you up!
   // notes of the moledy followed by the duration.
   // a 4 means a quarter note, 8 an eighteenth , 16 sixteenth, so on
   // !!negative numbers are used to represent dotted notes,
