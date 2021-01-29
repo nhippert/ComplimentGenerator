@@ -1,3 +1,5 @@
+
+
 /*ComplimentGenerator
    POC
    by Nicolas Hippert
@@ -7,6 +9,7 @@
 
 #include <LiquidCrystal.h>
 #include "pitches.h"
+#include <Adafruit_Thermal.h>
 
 //Pins
 const int rs = 12;
@@ -17,6 +20,8 @@ const int d6 = 3;
 const int d7 = 2;
 const int buttonPin = 7;
 const int buzzer = 8;
+#define TX_PIN 1 // Arduino transmit  YELLOW WIRE  labeled RX on printer
+#define RX_PIN 0 // Arduino receive   GREEN WIRE   labeled TX on printer
 
 //Global constants
 const int tempo = 140; // change this to make the song slower or faster
@@ -46,6 +51,9 @@ void setup() {
   //SERIAL
   Serial.begin(9600);
   Serial.println("Compliment generator starting up...");
+
+  //PRINTER
+    printer.begin();  
 }
 
 void loop() {
@@ -57,6 +65,7 @@ void loop() {
   //playMusic();
   //buttonIsPressedLongEnough(3);
   //randomCompliment();
+  //printCompliment();
   delay(999999999999);
 
 
@@ -333,5 +342,9 @@ void playMusic() { //Play a gratifying music to cheer you up!
     // stop the waveform generation before the next note.
     noTone(buzzer);
   }
+
+void printCompliment(){
+  
+}
 
 }
