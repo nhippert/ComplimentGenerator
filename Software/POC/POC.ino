@@ -204,21 +204,26 @@ void displayCompliment(String selectedCompliment) { //Write a random compliment
     }*/
 
   //Display of the compliment
-  /*String preformatedLines[10];
-    for (int i = 0; i < 10; i++) {
-    preformatedLines[i] = "";
-    }*/
-
+  String string1 = "";
+  String string2 = "";
   m = 0;
   n = 0;
   boolean nextIsEmpty = false;
+
 
   while (m < 10 && nextIsEmpty != true) {
     Serial.print("Line ");
     Serial.print(m);
     Serial.print(" - ");
     while (n < 10 && nextIsEmpty != true) {
-      //preformatedLines[m].concat(words[Lines[m][n]]);
+      if (m % 2 == 0) {
+        string1 += words[Lines[m][n]];
+        string1 += " ";
+      }
+      else {
+        string2 += words[Lines[m][n]];
+        string2 += " ";
+      }
       Serial.print(words[Lines[m][n]]);
       Serial.print(" ");
       if (Lines[m][n + 1] == 0) {
@@ -234,17 +239,21 @@ void displayCompliment(String selectedCompliment) { //Write a random compliment
     }
   }
 
+  Serial.print("string1: ");
+  Serial.println(string1);
+  Serial.print("string2: ");
+  Serial.println(string2);
+
   m = 0;
-  /*
+  
     lcd.clear();
-    while (m < 10 && preformatedLines[m].length() != 0) {
-      Serial.print(preformatedLines[m]);
-      lcd.print(preformatedLines[m]);
+    while (m < 10) {
+      lcd.print(string1);
       lcd.setCursor(0, 1);
-      lcd.print(preformatedLines[m + 1]);
+      lcd.print(string2);
       delay(1000);
       m++;
-    }*/
+    }
 
 }
 
