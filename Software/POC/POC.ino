@@ -86,9 +86,9 @@ void loop() {
   //randomCompliment();
   //printCompliment();
   testLEDs();
-  //delay(999999999999);
-
-
+  //testPrinter();
+  //energySaver();
+  delay(999999999999);
 
   //ROUTINE
   /*if (buttonIsPressedLongEnough(5)) {
@@ -98,22 +98,42 @@ void loop() {
     }*/
 }
 
-void testLEDs() {
+void testLEDs() {//Test the LEDs mimicking the behaviour they should have when activated after a long press from the user.
   digitalWrite(led1Pin, HIGH);
   delay(500);
-  digitalWrite(led1Pin, LOW);
   digitalWrite(led2Pin, HIGH);
   delay(500);
-  digitalWrite(led2Pin, LOW);
   digitalWrite(led3Pin, HIGH);
   delay(500);
-  digitalWrite(led3Pin, LOW);
   digitalWrite(led4Pin, HIGH);
   delay(500);
+  turnOffAllLeds();
+  delay(500);
+  turnOnAllLeds();
+  delay(500);
+  turnOffAllLeds();
+  delay(500);
+  turnOnAlleds();
+  delay(500);
+  turnOffAllLeds();
+  delay(500);
+}
+
+void turnOnAllLeds() {
+  digitalWrite(led1Pin, HIGH);
+  digitalWrite(led2Pin, HIGH);
+  digitalWrite(led3Pin, HIGH);
+  digitalWrite(led4Pin, HIGH);
+}
+
+void turnOffAllLeds() {
+  digitalWrite(led1Pin, LOW);
+  digitalWrite(led2Pin, LOW);
+  digitalWrite(led3Pin, LOW);
   digitalWrite(led4Pin, LOW);
 }
 
-void testUltrasonicSensor() {
+void testUltrasonicSensor() {//Test the feedback from the Ultrasonic Sensor, printing the distance mesured in cm in the console.
   long duration, inches, cm;
   digitalWrite(pingPin, LOW);
   delayMicroseconds(2);
@@ -132,7 +152,7 @@ long microsecondsToCentimeters(long microseconds) {
   return microseconds / 29 / 2;
 }
 
-bool buttonIsPressed() {
+bool buttonIsPressed() {//Listens for a short press on the button
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
     Serial.println("Button has been pressed");
@@ -413,5 +433,14 @@ void playMusic() { //Play a gratifying music to cheer you up!
   }
 }
 
-void printCompliment() {
+boolean energySaver() { //Allow theCompliment Generator to go into energy saving mode (v1 feature).
+
+
+}
+
+void printCompliment(String selectedCompliment) {//Print the compliment given in parameter (v2 feature).
+}
+
+void testPringt() { //Test the printer
+
 }
