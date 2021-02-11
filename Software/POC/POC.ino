@@ -73,11 +73,9 @@ void setup() {
 
 void loop() {
 
-
-
   //TESTS
   //testUltrasonicSensor();
-  //displayCompliment(randomCompliment());
+  //displayCompliment("Tu es beau comme un jour ferie un lundi.");
   //displayDummyCompliment();
   //idleScreen();
   //playMusic();
@@ -88,14 +86,14 @@ void loop() {
   //testLEDs();
   //testPrinter();
   //energySaver();
-  //delay(999999999999);
+  //exit(0);
 
   //ROUTINE
-  /*if (buttonIsPressedLongEnough(5)) {
+  if (buttonIsPressedLongEnough(3000)) {
     displayCompliment(randomCompliment());
     //playMusic();
     idleScreen();
-    }*/
+  }
 }
 
 void testLEDs() {//Test the LEDs mimicking the behaviour they should have when activated after a long press from the user.
@@ -204,6 +202,10 @@ breakout:
     delay(50);
     return false;
   }
+  else {
+    delay(50);
+    return false;
+  }
 }
 
 String randomCompliment() { //Select a compliment (almost) randomly from a list
@@ -230,7 +232,35 @@ String randomCompliment() { //Select a compliment (almost) randomly from a list
   return compliments[numberSelected];
 }
 
-void displayCompliment(String selectedCompliment) { //Write a random compliment
+void displayCompliment(String selectedCompliment) {
+  Serial.print("Selected compliment: ");
+  Serial.println(selectedCompliment);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Eh bien...");
+  lcd.setCursor(0, 1); //Move the cursor to row 2.
+  char inputArray[selectedCompliment.length() + 1];
+  selectedCompliment.toCharArray(inputArray, selectedCompliment.length() + 1); //Convert the string stored in "input" into a character array.
+  for (int i = 0; i <= 16; i++) { //For the first 16 characters, simply print them to the LCD screen.
+    lcd.write(inputArray[i]);
+  }
+  delay(1500); //Delay for 1.5 seconds so the user has time to read.
+  for (int j = 17; j <= selectedCompliment.length() + 1; j++) { //Now we begin printing from character 17 onward...
+    lcd.write(inputArray[j]); //Write the j-th character (for now it will be off-screen).
+    lcd.scrollDisplayLeft(); //Scroll the text left one character-space.
+
+    //This is where things get tricky, because both rows will be scrolled. But we want row 1 to remain stationary!
+    lcd.setCursor(j - 16, 0); //Set the cursor to the first character space on the first row [visually].
+    // cursor space (0,0) has been scrolled off-screen!
+    lcd.print("Eh bien...."); //Re-print the row 1 message.
+    lcd.setCursor(j + 1, 1); //Set the cursor one character space to the right of the last printed character on row 2.
+    //  Which is visually one character space off-screen, in preparation for the next iteration.
+    delay(350); //delay for 0.4 seconds so the user has time to read.
+  }
+  delay(1500);
+}
+
+void ArchivedDisplayCompliment(String selectedCompliment) { //Write a random compliment
   String words[100];
   int previousIndexOf = 0;
   int k = 0;
@@ -302,7 +332,6 @@ void displayCompliment(String selectedCompliment) { //Write a random compliment
       lineLength = 0;
     }
   }
-
 
   //Verbose: Write back the Lines array
   /* m = 0;
