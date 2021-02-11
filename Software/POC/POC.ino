@@ -28,8 +28,8 @@ const int led4Pin = 9;    //LED 4 pin
 #define RX_PIN 0          //Printer rx pin
 
 //Global constants
-const int tempo = 140;    //Tempo of the music played: change this to make the song slower or faster
-const int thisIsLongEnough = 500; //Determines in ms what is a long press on the button
+const int tempo = 140;    //Tempo of the music played: change this to make the song slower or faster.
+const int thisIsLongEnough = 2000; //Determines in milliseconds what is a long press on the button.
 
 //Variables
 int buttonPushCounter = 0;   //Counter for the number of button presses
@@ -85,10 +85,10 @@ void loop() {
   //buttonIsPressedLongEnough(thisIsLongEnough);
   //randomCompliment();
   //printCompliment();
-  testLEDs();
+  //testLEDs();
   //testPrinter();
   //energySaver();
-  delay(999999999999);
+  //delay(999999999999);
 
   //ROUTINE
   /*if (buttonIsPressedLongEnough(5)) {
@@ -113,7 +113,7 @@ void testLEDs() {//Test the LEDs mimicking the behaviour they should have when a
   delay(500);
   turnOffAllLeds();
   delay(500);
-  turnOnAlleds();
+  turnOnAllLeds();
   delay(500);
   turnOffAllLeds();
   delay(500);
@@ -155,35 +155,55 @@ long microsecondsToCentimeters(long microseconds) {
 bool buttonIsPressed() {//Listens for a short press on the button
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
-    Serial.println("Button has been pressed");
+    //Serial.println("button pressed");
+    while (digitalRead(buttonPin) != LOW) {
+    }
+    //Serial.println("button released");
+    delay(50);
     return true;
-  }
-  else {
-    return false;
   }
 }
 
 bool buttonIsPressedLongEnough(int thatIsLongEnough) { //Listen for a long press of the main button.
-  //thatIsLongEnough is the time required to press the button in seconds.
+  //thatIsLongEnough is the time required to press the button in milliseconds.
 
-  buttonState = digitalRead(buttonPin); // read the pushbutton input pin
-
-  // compare the buttonState to its previous state
-  if (buttonState != lastButtonState) {
-    // if the state has changed, increment the counter
-    if (buttonState == HIGH) {
-      // if the current state is HIGH then the button went from off to on:
-      buttonPushCounter++;
-      Serial.print(buttonPushCounter);
-      Serial.println(" compliments distribués.");
+  buttonState = digitalRead(buttonPin);
+  if (buttonState == HIGH) {
+    Serial.println("button is being pressed");
+    while (buttonState != LOW) {
+      digitalWrite(led1Pin, HIGH);
+      delay(thatIsLongEnough / 3);
+      if (digitalRead(buttonPin) == LOW)
+        goto breakout;
+      digitalWrite(led2Pin, HIGH);
+      delay(thatIsLongEnough / 3);
+      if (digitalRead(buttonPin) == LOW)
+        goto breakout;
+      digitalWrite(led3Pin, HIGH);
+      delay(thatIsLongEnough / 3);
+      if (digitalRead(buttonPin) == LOW)
+        goto breakout;
+      digitalWrite(led4Pin, HIGH);
+      Serial.println("button was successfully pressed long enough time !!");
+      delay(200);
+      turnOffAllLeds();
+      delay(200);
+      turnOnAllLeds();
+      delay(200);
+      turnOffAllLeds();
+      delay(200);
+      turnOnAllLeds();
+      delay(200);
+      turnOffAllLeds();
+      delay(200);
       return true;
     }
-    // Delay a little bit to avoid bouncing
+breakout:
+    turnOffAllLeds();
+    Serial.println("button released too early");
     delay(50);
+    return false;
   }
-  // save the current state as the last state, for next time through the loop
-  lastButtonState = buttonState;
-  return false;
 }
 
 String randomCompliment() { //Select a compliment (almost) randomly from a list
