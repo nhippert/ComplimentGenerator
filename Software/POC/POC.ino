@@ -1,3 +1,7 @@
+#include <LiquidCrystal.h>
+#include "pitches.h"
+#include <Adafruit_Thermal.h>
+
 /*ComplimentGenerator
    POC
    by Nicolas Hippert
@@ -5,11 +9,8 @@
    https://github.com/nhippert/ComplimentGenerator
 */
 
-#include <LiquidCrystal.h>
-#include "pitches.h"
-#include <Adafruit_Thermal.h>
-
 //Pins
+#define backlightPin A3   //Screen backlight pin
 const int rs = 12;        //Screen rs pin
 const int enable = 11;    //Screen enable pin
 const int d4 = 5;         //Screen d4 pin
@@ -27,20 +28,27 @@ const int led4Pin = 9;    //LED 4 pin
 #define TX_PIN 1          //Printer tx pin
 #define RX_PIN 0          //Printer rx pin
 
+
 //Global constants
-const int tempo = 140;    //Tempo of the music played: change this to make the song slower or faster.
-const int thisIsLongEnough = 2000; //Determines in milliseconds what is a long press on the button.
+const int tempo = 140;              //Tempo of the music played: change this to make the song slower or faster.
+int thisIsLongEnough = 2000;        //Determines in seconds what is a long press on the button.
+long timeBeforeSavingMode = 60000;  //Determines in seconds the time before entering energy saving mode.
 
 //Variables
 int buttonPushCounter = 0;   //Counter for the number of button presses
 int buttonState = 0;         //Current state of the button
 int lastButtonState = 0;     //Previous state of the button
+long timeToFallAsleep = 0;
+bool movementDetected = false;
 
 //SETUP
 LiquidCrystal lcd(rs, enable, d4, d5, d6, d7);
+
 void setup() {
   //LCD
   lcd.begin(16, 2);  //Set up the LCD's number of columns and rows
+  pinMode(backlightPin, OUTPUT);
+  digitalWrite(backlightPin, HIGH);
   lcd.clear();       //Clear the screen
 
   //LOADING SCREEN
@@ -85,15 +93,70 @@ void loop() {
   //printCompliment();
   //testLEDs();
   //testPrinter();
-  //energySaver();
+  //energySaver(1);
   //exit(0);
 
   //ROUTINE
-  if (buttonIsPressedLongEnough(3000)) {
-    displayCompliment(randomCompliment());
-    //playMusic();
+  /*energySaver(1);
     idleScreen();
+    if (buttonIsPressedLongEnough(3000)) {
+    displayCompliment(randomCompliment());
+    playMusic();
+    idleScreen();
+    }*/
+
+idleScreen();
+  //Defines the times at wich the system will go asleep
+  timeToFallAsleep = millis() + timeBeforeSavingMode;
+  movementDetected = false;
+  int previousValue = readUltrasonicSensor();
+  int currentValue = 0;
+
+  //Pushes the Compliment Generator asleep if there's no movement
+  while (millis() < timeToFallAsleep) {
+    currentValue = readUltrasonicSensor();
+    if (currentValue > previousValue * 1.20 || currentValue < previousValue * 0.80) {
+      timeToFallAsleep = millis() + timeBeforeSavingMode;
+    }
+    else if (buttonIsPressedLongEnough(thisIsLongEnough)) {
+      routine();
+    }
+    /*Serial.print("Actual:");
+      Serial.print(currentValue);
+      Serial.print(" - Previous:");
+      Serial.println(previousValue);*/
+    delay(100);
+    previousValue = currentValue;
   }
+
+  Serial.println("Compliment Generator going asleeeeeeeep... zzZzzzZzzz");
+  lcd.clear();
+  lcd.write("En veille...");
+  delay(100);
+  digitalWrite(backlightPin, LOW);
+
+  //Reactivate if requires
+  while (movementDetected == false) {
+    currentValue = readUltrasonicSensor();
+    if (currentValue > previousValue * 1.20 || currentValue < previousValue * 0.80) {
+      movementDetected = true;
+      Serial.println("Movement detected... Compliment Generator going full power agaaaaaaaain !!! Ready to conquer ze Werld !!!");
+      digitalWrite(backlightPin, HIGH);
+      idleScreen();
+    }
+    else if (buttonIsPressedLongEnough(thisIsLongEnough)) {
+      routine();
+      movementDetected = true;
+    }
+    delay(100);
+  }
+}
+
+void routine() {
+  digitalWrite(backlightPin, HIGH);
+  displayCompliment(randomCompliment());
+  playMusic();
+  idleScreen();
 }
 
 void testLEDs() {//Test the LEDs mimicking the behaviour they should have when activated after a long press from the user.
@@ -164,7 +227,8 @@ bool buttonIsPressed() {//Listens for a short press on the button
 
 bool buttonIsPressedLongEnough(int thatIsLongEnough) { //Listen for a long press of the main button.
   //thatIsLongEnough is the time required to press the button in milliseconds.
-
+  lcd.clear();
+  digitalWrite(backlightPin, HIGH);
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
     Serial.println("button is being pressed");
@@ -413,6 +477,7 @@ void displayDummyCompliment() { //For POC purposes only, display an unique stati
 }
 
 void idleScreen() { //Display the default screen when the system is waiting for a user to press the button.
+
   lcd.clear();
   lcd.print("Eh toi !!!");
   lcd.setCursor(0, 1);
@@ -435,16 +500,16 @@ void playMusic() { //Play a gratifying music to cheer you up!
     NOTE_G3, 4, NOTE_B3, 4, NOTE_D4, 4, NOTE_B3, 4,
     NOTE_G3, 4, NOTE_B3, 8, NOTE_D4, -4, NOTE_B3, 4,
 
-    NOTE_G3, 4, NOTE_G3, 8, NOTE_G3, -4, NOTE_G3, 8, NOTE_G3, 4,
-    NOTE_G3, 4, NOTE_G3, 4, NOTE_G3, 8, NOTE_G3, 4,
-    NOTE_C4, 4, NOTE_E4, 4, NOTE_G4, 4, NOTE_E4, 4,
-    NOTE_C4, 4, NOTE_E4, 8, NOTE_G4, -4, NOTE_E4, 4,
-    NOTE_A3, 4, NOTE_C4, 4, NOTE_E4, 4, NOTE_C4, 4,
-    NOTE_A3, 4, NOTE_C4, 8, NOTE_E4, -4, NOTE_C4, 4,
-    NOTE_G3, 4, NOTE_B3, 4, NOTE_D4, 4, NOTE_B3, 4,
-    NOTE_G3, 4, NOTE_B3, 8, NOTE_D4, -4, NOTE_B3, 4,
+    /*NOTE_G3, 4, NOTE_G3, 8, NOTE_G3, -4, NOTE_G3, 8, NOTE_G3, 4,
+      NOTE_G3, 4, NOTE_G3, 4, NOTE_G3, 8, NOTE_G3, 4,
+      NOTE_C4, 4, NOTE_E4, 4, NOTE_G4, 4, NOTE_E4, 4,
+      NOTE_C4, 4, NOTE_E4, 8, NOTE_G4, -4, NOTE_E4, 4,
+      NOTE_A3, 4, NOTE_C4, 4, NOTE_E4, 4, NOTE_C4, 4,
+      NOTE_A3, 4, NOTE_C4, 8, NOTE_E4, -4, NOTE_C4, 4,
+      NOTE_G3, 4, NOTE_B3, 4, NOTE_D4, 4, NOTE_B3, 4,
+      NOTE_G3, 4, NOTE_B3, 8, NOTE_D4, -4, NOTE_B3, 4,
 
-    NOTE_G3, -1,
+      NOTE_G3, -1,*/
 
   };
   // sizeof gives the number of bytes, each int value is composed of two bytes (16 bits)
@@ -482,14 +547,22 @@ void playMusic() { //Play a gratifying music to cheer you up!
   }
 }
 
-boolean energySaver() { //Allow theCompliment Generator to go into energy saving mode (v1 feature).
+int readUltrasonicSensor() {
+  digitalWrite(pingPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(pingPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(pingPin, LOW);
+  return pulseIn(echoPin, HIGH);
+}
 
+boolean energySaver(long timeBeforeSavingMode) { //Allow theCompliment Generator to go into energy saving mode (v1 feature).
 
 }
 
 void printCompliment(String selectedCompliment) {//Print the compliment given in parameter (v2 feature).
 }
 
-void testPringt() { //Test the printer
+void testPrinter() { //Test the printer
 
 }
