@@ -15,5 +15,7 @@ Click on the picture to see the video ;)
 
 
 My twitter: [@nhippert](https://twitter.com/nhippert)
+
 My blog: [Les projets –pas finis et inutiles– de Nico](https://nhippert.medium.com)
+
 My (not so) professional landing page: [nhippert](https://nhippert.mystrikingly.com)
