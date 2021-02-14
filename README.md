@@ -11,11 +11,12 @@ Anyway, have fun, don't hesitate to ask me questions and feel welcome to contact
 Project is actually ongoing... but to get you an idea, here is the first draft. But we have a clear roadmap to get this thing out and running in weeks!
 
 [![Alt text](https://img.youtube.com/vi/VZAMnIOjnCs/0.jpg)](https://youtu.be/VZAMnIOjnCs)
+
 Click on the picture to see the video ;)
 
 
 My twitter: [@nhippert](https://twitter.com/nhippert)
 
-My blog: [Les projets –pas finis et inutiles– de Nico](https://nhippert.medium.com)
+My blog: [Les projets –inutiles et pas finis– de Nico](https://nhippert.medium.com)
 
 My (not so) professional landing page: [nhippert](https://nhippert.mystrikingly.com)
