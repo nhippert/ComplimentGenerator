@@ -25,14 +25,14 @@ const int led1Pin = 6;    //LED 1 pin
 const int led2Pin = 7;    //LED 2 pin
 const int led3Pin = 10;   //LED 2 pin
 const int led4Pin = 9;    //LED 4 pin
-#define TX_PIN 1          //Printer tx pin
-#define RX_PIN 0          //Printer rx pin
+#define TX_PIN 1          //Tx pin
+#define RX_PIN 0          //Rx pin
 
 
 //Global constants
 const int tempo = 140;              //Tempo of the music played: change this to make the song slower or faster.
-int thisIsLongEnough = 2000;        //Determines in seconds what is a long press on the button.
-long timeBeforeSavingMode = 60000;  //Determines in seconds the time before entering energy saving mode.
+int thisIsLongEnough = 2000;        //Determines in milliseconds what is a long press on the button.
+long timeBeforeSavingMode = 60000;  //Determines in milliseconds the time before entering energy saving mode.
 
 //Variables
 int buttonPushCounter = 0;   //Counter for the number of button presses
@@ -58,7 +58,7 @@ void setup() {
   delay(50);
 
   //BUTTON
-  // initialize the pushbutton pin as an input:
+  //Initialize the pushbutton pin as an input
   pinMode(buttonPin, INPUT);
 
   //SERIAL
@@ -83,6 +83,7 @@ void loop() {
 
   //TESTS
   //testUltrasonicSensor();
+  //testLEDs();
   //displayCompliment("Tu es beau comme un jour ferie un lundi.");
   //displayDummyCompliment();
   //idleScreen();
@@ -91,10 +92,9 @@ void loop() {
   //buttonIsPressedLongEnough(thisIsLongEnough);
   //randomCompliment();
   //printCompliment();
-  //testLEDs();
   //testPrinter();
   //energySaver(1);
-  //exit(0);
+
 
   //ROUTINE
   /*energySaver(1);
@@ -104,39 +104,39 @@ void loop() {
     playMusic();
     idleScreen();
     }*/
+  /*
+    idleScreen();
+    //Defines the times at wich the system will go asleep
+    timeToFallAsleep = millis() + timeBeforeSavingMode;
+    movementDetected = false;
+    int previousValue = readUltrasonicSensor();
+    int currentValue = 0;
 
-idleScreen();
-  //Defines the times at wich the system will go asleep
-  timeToFallAsleep = millis() + timeBeforeSavingMode;
-  movementDetected = false;
-  int previousValue = readUltrasonicSensor();
-  int currentValue = 0;
-
-  //Pushes the Compliment Generator asleep if there's no movement
-  while (millis() < timeToFallAsleep) {
-    currentValue = readUltrasonicSensor();
-    if (currentValue > previousValue * 1.20 || currentValue < previousValue * 0.80) {
-      timeToFallAsleep = millis() + timeBeforeSavingMode;
-    }
-    else if (buttonIsPressedLongEnough(thisIsLongEnough)) {
-      routine();
-    }
-    /*Serial.print("Actual:");
-      Serial.print(currentValue);
-      Serial.print(" - Previous:");
-      Serial.println(previousValue);*/
-    delay(100);
+    //Pushes the Compliment Generator asleep if there's no movement
+    while (millis() < timeToFallAsleep) {
+      currentValue = readUltrasonicSensor();
+      if (currentValue > previousValue * 1.20 || currentValue < previousValue * 0.80) {
+        timeToFallAsleep = millis() + timeBeforeSavingMode;
+      }
+      else if (buttonIsPressedLongEnough(thisIsLongEnough)) {
+        routine();
+      }
+      /*Serial.print("Actual:");
+        Serial.print(currentValue);
+        Serial.print(" - Previous:");
+        Serial.println(previousValue);*/
+  /*  delay(100);
     previousValue = currentValue;
-  }
+    }
 
-  Serial.println("Compliment Generator going asleeeeeeeep... zzZzzzZzzz");
-  lcd.clear();
-  lcd.write("En veille...");
-  delay(100);
-  digitalWrite(backlightPin, LOW);
+    Serial.println("Compliment Generator going asleeeeeeeep... zzZzzzZzzz");
+    lcd.clear();
+    lcd.write("En veille...");
+    delay(100);
+    digitalWrite(backlightPin, LOW);
 
-  //Reactivate if requires
-  while (movementDetected == false) {
+    //Reactivate if requires
+    while (movementDetected == false) {
     currentValue = readUltrasonicSensor();
     if (currentValue > previousValue * 1.20 || currentValue < previousValue * 0.80) {
       movementDetected = true;
@@ -149,7 +149,7 @@ idleScreen();
       movementDetected = true;
     }
     delay(100);
-  }
+    }*/
 }
 
 void routine() {
@@ -216,10 +216,12 @@ long microsecondsToCentimeters(long microseconds) {
 bool buttonIsPressed() {//Listens for a short press on the button
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
-    //Serial.println("button pressed");
+    Serial.println("button pressed");
+    turnOnAllLeds();
     while (digitalRead(buttonPin) != LOW) {
     }
-    //Serial.println("button released");
+    Serial.println("button released");
+    turnOffAllLeds();
     delay(50);
     return true;
   }
@@ -227,7 +229,6 @@ bool buttonIsPressed() {//Listens for a short press on the button
 
 bool buttonIsPressedLongEnough(int thatIsLongEnough) { //Listen for a long press of the main button.
   //thatIsLongEnough is the time required to press the button in milliseconds.
-  lcd.clear();
   digitalWrite(backlightPin, HIGH);
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
@@ -474,10 +475,11 @@ void displayDummyCompliment() { //For POC purposes only, display an unique stati
   lcd.print("T'fait plaiz com");
   lcd.setCursor(0, 1);
   lcd.print("1kebab a 5du mat");
+  delay(1000);
 }
 
 void idleScreen() { //Display the default screen when the system is waiting for a user to press the button.
-
+  digitalWrite(backlightPin, HIGH);
   lcd.clear();
   lcd.print("Eh toi !!!");
   lcd.setCursor(0, 1);
